@@ -1,26 +1,31 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <link type="text/css" href="static/css/bootstrap-2.0.0.css" rel="stylesheet" />
+    <link type="text/css" href="static/css/bootstrap-2.0.2.css" rel="stylesheet" />
+    <link type="text/css" href="static/css/bootstrap-2.0.2-responsive.css" rel="stylesheet" />
     <title>doppelkopf-iop</title>
     <style type="text/css">
         body {
-            margin: 10px;
             font-family: Arial, Helvetica, Tahoma, Verdana, sans-serif;
             font-size: 12px;
+            padding-top: 60px;
+            padding-bottom: 40px;
         }
-        #script-editor-box {
-            margin: 5px;
-            border: 1px solid gray;
+        .box-rounded {
+            border: 1px solid #e1e1e8;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
         }
         #script-editor {
             border: none;
             outline: none;
+            color: #333333;
             font-family: "Consolas", "Monaco", Courier, monospace;
             font-size: 120%;
             position: relative;
             width: 100%;
-            height: 400px;
+            height: 500px;
         }
 
     </style>
@@ -45,11 +50,14 @@
             return scriptEditor
         }
         var initializeCanvas = function() {
-            var size = {width: $("#leftside").width(), height: $("#leftside").width()}
+            var size = {width: $("#left-side").width(), height: $("#left-side").width()}
             var paper = Raphael("canvas", size.width, size.height)
             paper.clear()
-            var background = paper.rect(0, 0, size.width, size.height)
-            background.attr("fill", "black")
+
+            var ball = paper.circle(100, 100, 50)
+            ball.attr("fill", "red")
+            ball.attr("stroke", "red")
+            ball.attr("cursor", "hand")
         }
         var executeJs = function(scriptText) {
             var script = $("<script/>").attr("type", "text/javascript").text(scriptText)
@@ -68,24 +76,51 @@
     </script>
 </head>
 <body>
-    <div id="leftside" style="float: left; width: 50%;">
-        <div id="canvas" style="height: 250px"></div>
-
-        <div id="player-hands">
-            <div class="player-hand"></div>
-            <div class="player-hand"></div>
-            <div class="player-hand"></div>
-            <div class="player-hand"></div>
-        </div>
-    </div>
-    <div style="float: right; width: 50%;">
-        <button id="script-execute">execute</button>
-        <div id="script-editor-box">
-            <div id="script-editor"></div>
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand" href="#">doppelkopf-iop</a>
+                <div class="nav-collapse">
+                    <ul class="nav">
+                        <li class="active"><a href="#">Home</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
+    <div class="container">
+        <div class="row">
+            <div class="span6" id="left-side">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#">Gameboard</a>
+                    </li>
+                </ul>
+                <div id="canvas" class="box-rounded"></div>
+                <div id="player-hands">
+                    <div class="player-hand"></div>
+                    <div class="player-hand"></div>
+                    <div class="player-hand"></div>
+                    <div class="player-hand"></div>
+                </div>
+            </div>
+            <div class="span6" id="right-side">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#">Sourcecode</a>
+                    </li>
+                </ul>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="script-execute">Execute</button>
+                </div>
+                <br />
+                <div class="box-rounded">
+                    <div id="script-editor"></div>
+                </div>
+            </div>
+        </div>
 
+    </div>
 </body>
-
 </html>
