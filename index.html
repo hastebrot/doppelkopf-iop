@@ -1,8 +1,6 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <link type="text/css" href="static/css/bootstrap-2.0.2.css" rel="stylesheet" />
-    <link type="text/css" href="static/css/bootstrap-2.0.2-responsive.css" rel="stylesheet" />
     <title>doppelkopf-iop</title>
     <style type="text/css">
         body {
@@ -29,11 +27,17 @@
         }
 
     </style>
+    <link type="text/css" href="static/css/bootstrap-2.0.2.css" rel="stylesheet" />
+    <link type="text/css" href="static/css/bootstrap-2.0.2-responsive.css" rel="stylesheet" />
     <script type="text/javascript" src="static/js/jquery-1.7.1.js" charset="utf-8"></script>
     <script type="text/javascript" src="static/js/raphael-2.1.0.js" charset="utf-8"></script>
     <script type="text/javascript" src="static/js/ace-0.2.0.js" charset="utf-8"></script>
     <script type="text/javascript" src="static/js/ace-0.2.0-mode-javascript.js" charset="utf-8"></script>
     <script type="text/javascript">
+
+        // http://raphaeljs.com/
+        // http://twitter.github.com/bootstrap/
+        // http://ace.ajax.org/
 
 //        var initializeHands = function() {
 //            $("#player-hands").text("hello world")
@@ -47,17 +51,46 @@
             var JavaScriptMode = require("ace/mode/javascript").Mode
             scriptEditor.getSession().setMode(new JavaScriptMode())
             scriptEditor.renderer.setHScrollBarAlwaysVisible(false)
+            scriptEditor.setShowPrintMargin(false)
+            scriptEditor.setHighlightActiveLine(false)
             return scriptEditor
         }
         var initializeCanvas = function() {
-            var size = {width: $("#left-side").width(), height: $("#left-side").width()}
+            // http://stackoverflow.com/a/9330739/371964
+            var arcPath = function(centerX, centerY, startAngle, endAngle, innerR, outerR) {
+                var radians = Math.PI / 180
+                var largeArc = +(endAngle - startAngle > 180)
+                var outerX1 = centerX + outerR * Math.cos((startAngle - 90) * radians)
+                var outerY1 = centerY + outerR * Math.sin((startAngle - 90) * radians)
+                var outerX2 = centerX + outerR * Math.cos((endAngle - 90) * radians)
+                var outerY2 = centerY + outerR * Math.sin((endAngle - 90) * radians)
+                var innerX1 = centerX + innerR * Math.cos((endAngle - 90) * radians)
+                var innerY1 = centerY + innerR * Math.sin((endAngle - 90) * radians)
+                var innerX2 = centerX + innerR * Math.cos((startAngle - 90) * radians)
+                var innerY2 = centerY + innerR * Math.sin((startAngle - 90) * radians)
+                var path = [
+                    ["M", outerX1, outerY1], // Move to the start point.
+                    ["A", outerR, outerR, 0, largeArc, 1, outerX2, outerY2], // Draw the outer edge of the arc.
+                    ["L", innerX1, innerY1], // Draw a line inwards to the start of the inner edge of the arc.
+                    ["A", innerR, innerR, 0, largeArc, 0, innerX2, innerY2], // Draw the inner arc.
+                    ["z"] // Close the path.
+                ]
+                return {path: path}
+            }
+
+            var width = $("#left-side").width()
+            var size = {width: width, height: width}
             var paper = Raphael("canvas", size.width, size.height)
+            paper.customAttributes.arc = arcPath
             paper.clear()
 
-            var ball = paper.circle(100, 100, 50)
-            ball.attr("fill", "red")
-            ball.attr("stroke", "red")
-            ball.attr("cursor", "hand")
+            var players = ["red", "green", "blue", "black"]
+            players.forEach(function(element, index) {
+                var params = {fill: element, stroke: "white", "stroke-width": 0}
+                paper.path().attr(params).attr({arc: [width/2.0, width/2.0,
+                    45 + 90 + (index * 90), 45 + 90 + ((index + 1) * 90),
+                    200, 250]})
+            })
         }
         var executeJs = function(scriptText) {
             var script = $("<script/>").attr("type", "text/javascript").text(scriptText)
@@ -65,11 +98,10 @@
         }
         $(function() {
             var scriptText = '$("#player-hands").text("test")\n'
-            var scriptEditor = initializeEditor(scriptText)
             initializeCanvas()
+            var scriptEditor = initializeEditor(scriptText)
             $("#script-execute").on("click", function() {
                 var scriptText = scriptEditor.getSession().getValue()
-                console.log(scriptText)
                 executeJs(scriptText)
             })
         })
